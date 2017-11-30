@@ -1,4 +1,4 @@
-package com.example.mlallemant.destroythemall.Vehicle;
+package com.example.mlallemant.destroythemall.Vehicle.Draw;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -7,13 +7,13 @@ import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.Rect;
 
-import com.example.mlallemant.destroythemall.DrawInterface;
+import com.example.mlallemant.destroythemall.Vehicle.VehicleInterface;
 
 /**
  * Created by m.lallemant on 27/11/2017.
  */
 
-public class BasicShip implements DrawInterface {
+public class BasicShip implements VehicleInterface {
 
 
     //UI
@@ -28,15 +28,23 @@ public class BasicShip implements DrawInterface {
     private Path triangle_left_top;
     private Path triangle_right_top;
 
-    //Utils
     private Paint paint;
     private int bloc_center_length;
     private int bloc_width;
     private int bloc_small_width;
+    private int width_screen;
 
-    public BasicShip(int posX, int posY, int length_screen){
+    //Utils
+    private final int PERIOD_MS = 10;
+    private int RATIO = 840;
+    private int speed;
 
-        bloc_center_length = Double.valueOf(0.05 * length_screen).intValue();
+    public BasicShip(int posX, int posY, int height_screen, int width_screen){
+
+        this.width_screen = width_screen;
+        speed = (PERIOD_MS * this.width_screen) / RATIO;
+
+        bloc_center_length = Double.valueOf(0.05 * height_screen).intValue();
         bloc_width = bloc_center_length/2;
         bloc_small_width = bloc_width/2;
 
@@ -100,6 +108,23 @@ public class BasicShip implements DrawInterface {
 
     public int getRight(){
         return bloc_right.right;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+
+    public int getSpeedRatio() {
+        return RATIO;
+    }
+
+    public void setSpeedRatio(int ratio) {
+        this.RATIO = ratio;
+        speed = (PERIOD_MS * width_screen) / RATIO;
     }
 
 }
