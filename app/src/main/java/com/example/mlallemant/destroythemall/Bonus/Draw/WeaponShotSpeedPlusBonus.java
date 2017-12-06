@@ -18,65 +18,106 @@ import com.example.mlallemant.destroythemall.R;
 public class WeaponShotSpeedPlusBonus implements BonusInterface {
 
     //UI
-    private Rect rect;
-    private int bloc_width;
-    private int bloc_height;
+    private int radius_circle_back;
+    private int radius_circle_center;
+    private int x;
+    private int y;
 
-    private TextPaint textPaint;
+    private Rect top;
+    private Rect left;
+    private Rect right;
+    private Rect bottom;
+
+    private Rect plus_1;
+    private Rect plus_2;
+
     private Paint background;
-    private String s = "Shot++";
+    private Paint paint;
 
     //UTILS
-    private int timeToFall = 2000;
+    private int timeToFall = 7000;
 
 
     public WeaponShotSpeedPlusBonus(Context context, int width, int height){
-        bloc_width = width / 25;
-        bloc_height = height / 30;
+        radius_circle_back = width / 28;
+        radius_circle_center = width / 33;
+
+        x = radius_circle_back + 2*radius_circle_back/3;
+        y = radius_circle_back + 2*radius_circle_back/3;
+
+        int delta = radius_circle_back - radius_circle_center;
+
+        top = newRectangle(x  - radius_circle_center - delta/2, y, delta, 2*radius_circle_back/3, 0);
+        left =  newRectangle(x  - radius_circle_center - delta/2, y, delta, 2*radius_circle_back/3, 1);
+        bottom = newRectangle(x  + radius_circle_center + delta/2, y, delta, 2*radius_circle_back/3, 0);
+        right = newRectangle(x  + radius_circle_center + delta/2, y, delta, 2*radius_circle_back/3, 1);
+
+        plus_1 = newRectangle(x,y,delta, 2*radius_circle_back/3,1);
+        plus_2 = newRectangle(x,y,delta, 2*radius_circle_back/3, 0);
 
         background = new Paint();
         background.setColor(ContextCompat.getColor(context, R.color.background_color));
 
-        textPaint = new TextPaint();
-        textPaint.setColor(Color.WHITE);
-        textPaint.setTextSize(bloc_width);
+        paint = new Paint();
+        paint.setColor(ContextCompat.getColor(context, R.color.orange_color));
 
-        float w;
-        float textSize;
-        w = textPaint.measureText(s);
-        textSize = textPaint.getTextSize();
-
-        rect = new Rect(Float.valueOf(-w).intValue() , Float.valueOf(-textSize).intValue(), Float.valueOf(w).intValue(), Float.valueOf(+textSize).intValue());
     }
 
     public void draw(Canvas canvas){
+        canvas.drawCircle(x,y,radius_circle_back, paint);
+        canvas.drawCircle(x,y,radius_circle_center, background);
+        canvas.drawRect(top, paint);
+        canvas.drawRect(left, paint);
+        canvas.drawRect(bottom, paint);
+        canvas.drawRect(right, paint);
 
-        canvas.drawRect(rect, background);
-        canvas.drawText(s,rect.width() + 2 * rect.left , rect.height() - rect.bottom , textPaint);
+        canvas.drawRect(plus_1, paint);
+        canvas.drawRect(plus_2,paint);
+    }
+
+
+    /**
+     *
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param rotation : 0 --> VERTICAL / 1 --> HORIZONTAL
+     * @return
+     */
+    private Rect newRectangle(int x, int y, int width, int height, int rotation){
+        Rect rect;
+        if (rotation == 0){
+            rect = new Rect(y-width/2, x-height/2, y+width/2, x+height/2);
+        }else {
+            rect = new Rect(x-height/2, y-width/2, x+height/2, y+width/2);
+        }
+
+        return rect;
     }
 
     public int getHeight() {
-        return rect.height();
+        return radius_circle_back + bottom.height();
     }
 
     public int getWidth() {
-        return rect.width();
+        return  radius_circle_back*2 + left.height();
     }
 
     public int getTop() {
-        return rect.top;
+        return 0;
     }
 
     public  int getBottom() {
-        return rect.bottom;
+        return bottom.bottom;
     }
 
     public int getLeft() {
-        return rect.left;
+        return 0;
     }
 
     public int getRight() {
-        return rect.right;
+        return 0;
     }
 
     public int getTimeToFall() {

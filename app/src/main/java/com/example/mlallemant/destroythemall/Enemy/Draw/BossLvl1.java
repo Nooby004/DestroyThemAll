@@ -1,7 +1,6 @@
 package com.example.mlallemant.destroythemall.Enemy.Draw;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -11,27 +10,29 @@ import android.graphics.Rect;
 import android.support.v4.content.ContextCompat;
 
 import com.example.mlallemant.destroythemall.Enemy.EnemyInterface;
-import com.example.mlallemant.destroythemall.Enemy.EnemyView;
 import com.example.mlallemant.destroythemall.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by m.lallemant on 29/11/2017.
+ * Created by m.lallemant on 04/12/2017.
  */
 
-public class SlowEnemy implements EnemyInterface {
+public class BossLvl1 implements EnemyInterface {
 
     //UI
     private Rect bloc;
-    private Paint paint;
-    private Paint backgroundPaint;
+    private Path triangle_left;
+    private Path triangle_right;
+    private Path triangle_weapon;
     private Path triangle_eye_left;
     private Path triangle_eye_right;
-    private Rect bloc_tmp;
+    private Path triangle_mouse;
 
-    private Rect mouse_bloc;
+
+    private Paint paint;
+    private Paint backgroundPaint;
 
     private List<Rect> bloc_life_point;
     private Paint paintLifePoint;
@@ -40,24 +41,24 @@ public class SlowEnemy implements EnemyInterface {
     private int bloc_height;
 
     //UTILS
-    private int lifePoint = 3;
-    private int timeToFall = 10000;
-    private int rateOfFire = 3000;
+    private int lifePoint = 50;
+    private int timeToFall = 3000;
+    private int rateOfFire = 700;
 
-    public SlowEnemy(Context context, int width, int height){
-        bloc_width = width / 12;
-        bloc_height = height / 25;
+
+    public BossLvl1(Context context, int width, int height) {
+        bloc_width = width / 5;
+        bloc_height = height / 15;
 
         bloc = new Rect(bloc_width-bloc_width/2, bloc_height-bloc_height/2, bloc_width+bloc_width/2, bloc_height+bloc_height/2);
-        bloc_tmp = new Rect(bloc.left, bloc.top-20, bloc.left, bloc.top);
+        triangle_left = newTriangle(new Point(bloc.left - bloc_width/7, bloc.top), new Point(bloc.left, bloc.top), new Point(bloc.left, bloc.bottom));
+        triangle_right = newTriangle(new Point(bloc.right + bloc_width/7, bloc.top), new Point(bloc.right, bloc.top), new Point(bloc.right, bloc.bottom));
+        triangle_weapon = newTriangle(new Point(bloc.centerX()-bloc_width/8, bloc.bottom), new Point(bloc.centerX() + bloc_width/8, bloc.bottom), new Point(bloc.centerX(), bloc.bottom + bloc_width/8));
 
-        triangle_eye_left = newTriangle(new Point(bloc.left + bloc_width/10, bloc.top + 4*bloc_height/10), new Point(bloc.left + bloc_width/2 - bloc_width/10,bloc.top + 4*bloc_height/10),
-                new Point(bloc.left + bloc_width/2 - bloc_width/10, bloc.top + bloc_height/8));
+        triangle_eye_left = newTriangle(new Point(bloc.left, bloc.top + bloc_height/7), new Point(bloc.left, bloc.top + bloc_height / 3), new Point(bloc.left + bloc_width / 6, bloc.top + bloc_height / 3));
+        triangle_eye_right =  newTriangle(new Point(bloc.right, bloc.top + bloc_height/7), new Point(bloc.right, bloc.top + bloc_height / 3), new Point(bloc.right - bloc_width / 6, bloc.top + bloc_height / 3));
+        triangle_mouse = newTriangle(new Point(bloc.left, bloc.centerY()), new Point(bloc.centerX(), bloc.bottom - bloc_height/8), new Point(bloc.right, bloc.centerY()));
 
-        triangle_eye_right = newTriangle( new Point(bloc.right - bloc_width/10, bloc.top + 4*bloc_height/10), new Point(bloc.right - bloc_width/2 + bloc_width/10,bloc.top + 4*bloc_height/10),
-                new Point(bloc.right - bloc_width/2 + bloc_width/10, bloc.top + bloc_height/8));
-
-        mouse_bloc = new Rect(bloc.left + bloc_width/10, bloc.bottom - 4*bloc_height/10,  bloc.right - bloc_width/10, bloc.bottom-bloc_height/10 );
 
         paint = new Paint();
         paint.setColor(Color.WHITE);
@@ -76,29 +77,26 @@ public class SlowEnemy implements EnemyInterface {
         bloc_life_point = new ArrayList<>();
         for (int i = 0; i < lifePoint; i++){
             Rect bloc_tmp = new Rect(bloc.left + i * bloc.width()/lifePoint, bloc.top - 18, bloc.left + (i+1) * bloc.width()/lifePoint, bloc.top - 13);
-            //Rect bloc_tmp = new Rect(bloc.left + i * bloc.width()/lifePoint, 15, bloc.left + (i+1) * bloc.width()/lifePoint, 20);
             bloc_life_point.add(bloc_tmp);
         }
     }
 
     public void draw(Canvas canvas){
         canvas.drawRect(bloc, paint);
-        //canvas.drawRect(bloc_tmp, backgroundPaint);
+        canvas.drawPath(triangle_left, paint);
+        canvas.drawPath(triangle_right, paint);
+        canvas.drawPath(triangle_weapon, paint);
         canvas.drawPath(triangle_eye_left, backgroundPaint);
         canvas.drawPath(triangle_eye_right, backgroundPaint);
-        canvas.drawRect(mouse_bloc, backgroundPaint);
+        canvas.drawPath(triangle_mouse, backgroundPaint);
+
         for (int i = 0; i < lifePoint; i++){
             canvas.drawRect(bloc_life_point.get(i), paintLifePoint);
         }
     }
 
-    public static int dpToPx(int dp)
-    {
-        return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
-    }
-
     public int getHeight(){
-        return bloc_height;
+        return bloc_height + bloc_height/8;
     }
 
     public int getWidth(){
@@ -130,15 +128,16 @@ public class SlowEnemy implements EnemyInterface {
     }
 
     public void setLifePoint(int lifePoint){
-          this.lifePoint = lifePoint;
-    }
-
-    public void setColorForImpactEffect(int color){
-        paint.setColor(color);
+        this.lifePoint = lifePoint;
     }
 
     public int getRateOfFire(){
         return rateOfFire;
+    }
+
+
+    public void setColorForImpactEffect(int color){
+        paint.setColor(color);
     }
 
     private Path newTriangle(Point a, Point b, Point c){
@@ -150,5 +149,6 @@ public class SlowEnemy implements EnemyInterface {
         path.close();
         return path;
     }
+
 
 }

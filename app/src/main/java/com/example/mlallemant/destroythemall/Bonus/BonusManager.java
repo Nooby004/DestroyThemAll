@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.example.mlallemant.destroythemall.UI.MainView;
+import com.example.mlallemant.destroythemall.Vehicle.VehicleView;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -19,7 +20,7 @@ public class BonusManager {
 
     //UTILS
     private MainView mainView;
-    private int TIME_BETWEEN_BONUS_MS = 20000;
+    private int TIME_BETWEEN_BONUS_MS = 2000;
     private ArrayList<BonusView> bonusViewList;
     private boolean speedPlusBonusToggle = false;
     private boolean weaponShotSpeedPlusToggle = false;
@@ -37,6 +38,7 @@ public class BonusManager {
         final BonusView bonusView = new BonusView(mainView.getContext(), mainView.getWidth(), mainView.getHeight(), bonusType);
 
         mainView.addView(bonusView, 0);
+        bonusView.bringToFront();
 
         int x;
         if (bonusType == BonusView.VEHICLE_SPEED_PLUS || bonusType == BonusView.WEAPON_SHOT_SPEED_PLUS){
@@ -60,13 +62,13 @@ public class BonusManager {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 float yPosition = (Float) valueAnimator.getAnimatedValue();
-                bonusView.setPosY(Float.valueOf(yPosition).intValue());
+                bonusView.setPosY(Float.valueOf(yPosition - bonusView.getHeightTotal()/2).intValue());
 
                 if (bonusViewList.contains(bonusView)){
                     bonusViewList.set(bonusViewList.indexOf(bonusView), bonusView);
 
-                    int xMinE = bonusView.getPosX() - bonusView.getWidthTotal()/2;
-                    int xMaxE = bonusView.getPosX() + bonusView.getWidthTotal()/2;
+                    int xMinE = bonusView.getPosX();
+                    int xMaxE = bonusView.getPosX() + bonusView.getWidthTotal();
 
                     if (yPosition > mainView.getVehicleView().getY()){
                             if (verifyImpactEnemyToVehicle(xMinE,xMaxE,Float.valueOf(yPosition).intValue(), bonusType)){
@@ -108,7 +110,7 @@ public class BonusManager {
         int xMinV = mainView.getVehicleView().getPosX() - mainView.getVehicleView().getWidthTotal()/2;
         int xMaxV = mainView.getVehicleView().getPosX() + mainView.getVehicleView().getWidthTotal()/2;
 
-        if (xMinV < xMaxE && xMaxV > xMinE && yPosE > mainView.getVehicleView().getTop_()){
+        if (xMinV < xMaxE && xMaxV > xMinE && yPosE > mainView.getVehicleView().getTop_() && yPosE < mainView.getVehicleView().getBottom_()){
             impact = true;
             activateBonusByType(bonusType);
         }
@@ -116,17 +118,19 @@ public class BonusManager {
         return impact;
     }
 
-
     private void generateBonusScenario(){
-        int rand1 = getRandomIntBetween(0, 100);
+
+       int rand1 = getRandomIntBetween(0, 100);
         int rand2 = getRandomIntBetween(0,2);
         if (rand1 > 70 ) {
             if (rand2 == 0 && !speedPlusBonusToggle) generateBonus(BonusView.VEHICLE_SPEED_PLUS);
             if (rand2 == 1 && !weaponShotSpeedPlusToggle)  generateBonus(BonusView.WEAPON_SHOT_SPEED_PLUS);
         }
-        if (rand1 < 71) {
+        else if (rand1 < 61) {
             if (rand2 == 0) generateBonus(BonusView.VEHICLE_SPEED_MINUS);
             if (rand2 == 1) generateBonus(BonusView.WEAPON_SHOT_SPEED_MINUS);
+        } else {
+            generateBonus(BonusView.WEAPON_TRIPLE_SHOT);
         }
     }
 
@@ -150,7 +154,9 @@ public class BonusManager {
                 weaponShotSpeedPlusToggle = false;
                 break;
             case BonusView.SHIELD : break;
-            case BonusView.WEAPON_TRIPLE_SHOT : break;
+            case BonusView.WEAPON_TRIPLE_SHOT :
+                mainView.getVehicleView().setShotType(VehicleView.TRIPLE_SHOT);
+                break;
             case BonusView.WEAPON_GATLING_SHOT : break;
         }
 

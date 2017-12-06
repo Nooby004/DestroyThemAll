@@ -18,8 +18,16 @@ public class VehicleView extends View {
     private int posX;
     private int posY;
     private VehicleInterface vehicleInterface;
+
     public final static int BASIC_SHIP = 0;
+
+
+    public final static int NORMAL_SHOT = 0;
+    public final static int TRIPLE_SHOT = 1;
+    public final static int GATLING_SHOT = 2;
+
     private int TIME_BETWEEN_SHOT = 200;
+    private int shotType = NORMAL_SHOT;
 
     public VehicleView(Context context, int posX, int posY, int height_screen, int width_screen, int VEHICLE_TYPE){
         super(context);
@@ -88,6 +96,14 @@ public class VehicleView extends View {
 
     public void setSpeedRatio(int speed) {
         vehicleInterface.setSpeedRatio(speed);
+    }
+
+    public int getShotType() {
+        return shotType;
+    }
+
+    public void setShotType(int shotType) {
+        this.shotType = shotType;
     }
 
     public int getTIME_BETWEEN_SHOT() {

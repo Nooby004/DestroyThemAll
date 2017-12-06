@@ -42,6 +42,7 @@ public class PrinceEnemy implements EnemyInterface {
     //UTILS
     private int lifePoint = 5;
     private int timeToFall = 13000;
+    private int rateOfFire = 3500;
 
 
     public PrinceEnemy(Context context, int width, int height) {
@@ -135,6 +136,10 @@ public class PrinceEnemy implements EnemyInterface {
 
     public void setColorForImpactEffect(int color){
         paint.setColor(color);
+    }
+
+    public int getRateOfFire(){
+        return rateOfFire;
     }
 
     private Path newTriangle(Point a, Point b, Point c){

@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.view.View;
 
 import com.example.mlallemant.destroythemall.Enemy.Draw.BasicEnemy;
+import com.example.mlallemant.destroythemall.Enemy.Draw.BossLvl1;
 import com.example.mlallemant.destroythemall.Enemy.Draw.PrinceEnemy;
 import com.example.mlallemant.destroythemall.Enemy.Draw.SlowEnemy;
 
@@ -22,11 +23,18 @@ public class EnemyView extends View {
     public final static int SLOW_ENEMY = 1;
     public final static int PRINCE_ENEMY = 2;
 
+    public final static int BOSS_1 = 100;
+
     private int posX;
     private int posY;
 
+    private int enemyType;
+    private Runnable shotRunnable;
+
     public EnemyView(Context context, int width, int height, int ENEMY_TYPE){
         super(context);
+
+        enemyType = ENEMY_TYPE;
 
         switch (ENEMY_TYPE){
             case BASIC_ENEMY :
@@ -37,6 +45,9 @@ public class EnemyView extends View {
 
             case PRINCE_ENEMY :
                 enemyInterface = new PrinceEnemy(context, width, height); break;
+
+            case BOSS_1 :
+                enemyInterface = new BossLvl1(context, width, height); break;
             default:break;
         }
     }
@@ -83,6 +94,10 @@ public class EnemyView extends View {
         enemyInterface.setLifePoint(lifePoint);
     }
 
+    public int getRateOfFire(){
+        return enemyInterface.getRateOfFire();
+    }
+
     public int getPosX() {
         return posX;
     }
@@ -97,6 +112,20 @@ public class EnemyView extends View {
 
     public void setPosY(int posY) {
         this.posY = posY;
+    }
+
+
+
+    public int getEnemyType(){
+        return this.enemyType;
+    }
+
+    public Runnable getShotRunnable() {
+        return shotRunnable;
+    }
+
+    public void setShotRunnable(Runnable shotRunnable) {
+        this.shotRunnable = shotRunnable;
     }
 
     private void makeImpactEffect(){

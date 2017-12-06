@@ -8,6 +8,7 @@ import com.example.mlallemant.destroythemall.Bonus.Draw.SpeedMinusBonus;
 import com.example.mlallemant.destroythemall.Bonus.Draw.SpeedPlusBonus;
 import com.example.mlallemant.destroythemall.Bonus.Draw.WeaponShotSpeedMinusBonus;
 import com.example.mlallemant.destroythemall.Bonus.Draw.WeaponShotSpeedPlusBonus;
+import com.example.mlallemant.destroythemall.Bonus.Draw.WeaponTripleShotBonus;
 
 /**
  * Created by m.lallemant on 29/11/2017.
@@ -45,7 +46,9 @@ public class BonusView extends View {
                 bonusInterface = new WeaponShotSpeedMinusBonus(context, width, height);
                 break;
             case SHIELD : break;
-            case WEAPON_TRIPLE_SHOT : break;
+            case WEAPON_TRIPLE_SHOT :
+                bonusInterface = new WeaponTripleShotBonus(context, width, height);
+                break;
             case WEAPON_GATLING_SHOT : break;
         }
     }

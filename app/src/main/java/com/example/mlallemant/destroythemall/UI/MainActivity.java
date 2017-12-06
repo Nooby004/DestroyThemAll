@@ -6,16 +6,20 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -27,6 +31,9 @@ import com.example.mlallemant.destroythemall.R;
 import com.example.mlallemant.destroythemall.Utils.SharedPreferencesManager;
 import com.example.mlallemant.destroythemall.Vehicle.VehicleView;
 
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
@@ -40,13 +47,17 @@ public class MainActivity extends AppCompatActivity {
     private Button btn_play;
     private TextView tv_score;
     private TextView tv_best_score;
+    private List<ImageView> iv_background_list;
 
     //UTILS
     private final String TAG = "MainActivity";
     private EnemyManager enemyManager;
     private BonusManager bonusManager;
     private int score = 0;
+    private int level = 1;
     private SharedPreferencesManager sharedPreferencesManager;
+    private ValueAnimator backgroundAnimator;
+    private MediaPlayer backgroundMedia;
 
     //RUNTIME
     private Handler shootingHandler;
@@ -57,8 +68,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         sharedPreferencesManager = new SharedPreferencesManager(this);
+
+        backgroundMedia = MediaPlayer.create(getApplicationContext(), R.raw.background_song);
+        backgroundMedia.setLooping(true);
+
         initUI();
         initListener();
     }
@@ -70,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
         enemyManager.stopEnemyWave();
         bonusManager.stopBonusWave();
         stopShooting();
+        backgroundMedia.pause();
+        if (backgroundAnimator != null) backgroundAnimator.cancel();
     }
 
     private void initUI(){
@@ -122,6 +138,50 @@ public class MainActivity extends AppCompatActivity {
         tv_best_score.setText("Best : " + sharedPreferencesManager.getBestScore());
         mainView.addView(tv_best_score);
 
+
+        //BACKGROUND
+        RelativeLayout.LayoutParams background_param = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT);
+        iv_background_list = new ArrayList<>();
+
+        ImageView i0 = new ImageView(this);
+        i0.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.diapositive1));
+        i0.setLayoutParams(background_param);
+
+        ImageView i1 = new ImageView(this);
+        i1.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.diapositive2));
+        i1.setLayoutParams(background_param);
+
+        ImageView i2 = new ImageView(this);
+        i2.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.diapositive3));
+        i2.setLayoutParams(background_param);
+
+        ImageView i3 = new ImageView(this);
+        i3.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.diapositive4));
+        i3.setLayoutParams(background_param);
+
+        ImageView i4 = new ImageView(this);
+        i4.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.diapositive5));
+        i4.setLayoutParams(background_param);
+
+        ImageView i5 = new ImageView(this);
+        i5.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.diapositive1));
+        i5.setLayoutParams(background_param);
+
+        iv_background_list.add(i0);
+        iv_background_list.add(i1);
+        iv_background_list.add(i2);
+        iv_background_list.add(i3);
+        iv_background_list.add(i4);
+        iv_background_list.add(i5);
+
+        for (int i =0 ; i <iv_background_list.size(); i++) {
+            mainView.addView(iv_background_list.get(i), 0);
+        }
+
+        initAnimationBackground();
+
         //OBSERVER GET SIZE SCREEN
         ViewTreeObserver observer = mainView.getViewTreeObserver();
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -150,6 +210,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
     }
 
     private void initListener(){
@@ -159,20 +220,51 @@ public class MainActivity extends AppCompatActivity {
                 btn_play.setVisibility(View.INVISIBLE);
                 tv_score.setVisibility(View.VISIBLE);
                 tv_score.setText("0");
-                tv_best_score.setVisibility(View.INVISIBLE);
+                tv_best_score.setText("Lvl " + level);
 
                 vehicleView.setSpeedRatio(840);
                 enemyManager.setTIME_BETWEEN_ENEMY_MS(1500);
+                vehicleView.setTIME_BETWEEN_SHOT(200);
+                vehicleView.setShotType(VehicleView.NORMAL_SHOT);
+
                 enemyManager.launchEnemyWave();
                 bonusManager.launchBonusWave();
                 launchShooting();
+                launchAnimationBackground();
+
+                backgroundMedia.start();
+
             }
         });
     }
 
+    private void initAnimationBackground(){
+        backgroundAnimator = ValueAnimator.ofFloat(0.0f, 5.0f);
+        backgroundAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        backgroundAnimator.setInterpolator(new LinearInterpolator());
+        backgroundAnimator.setDuration(40000L);
+        backgroundAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                final float progress = (float) valueAnimator.getAnimatedValue();
+                final float height = iv_background_list.get(0).getHeight();
+                final float translationY = height * progress;
+
+                for (int i = 0; i<iv_background_list.size(); i++){
+                    iv_background_list.get(i).setTranslationY(translationY - i*height);
+                }
+            }
+        });
+    }
+
+    private void launchAnimationBackground(){
+
+        if (!backgroundAnimator.isStarted()) backgroundAnimator.start();
+        else backgroundAnimator.resume();
+
+    }
 
     private void verifyImpactShotToEnemy(int xMinS, int xMaxS, int shotPosY, RelativeLayout shotView, AnimatorSet set){
-
         if (!enemyManager.getEnemyViewList().isEmpty()) {
             for (EnemyView enemyView : enemyManager.getEnemyViewList()) {
 
@@ -180,12 +272,12 @@ public class MainActivity extends AppCompatActivity {
                 int xMaxE = enemyView.getPosX() + enemyView.getWidthTotal() ;
                 int yImpact = enemyView.getPosY() + enemyView.getHeightTotal() / 2;
 
-                if (xMinS <= xMaxE && xMaxS >= xMinE && shotPosY < yImpact) {
+                Log.e(TAG, "bottom : " + enemyView.getPosY());
 
+                if (xMinS <= xMaxE && xMaxS >= xMinE && shotPosY < yImpact) {
                     set.cancel();
                     shotView.clearAnimation();
                     mainView.removeView(shotView);
-
                     enemyView.setLifePoint(enemyView.getLifePoint()-1);
 
                     if (enemyView.getLifePoint() < 1){
@@ -194,11 +286,20 @@ public class MainActivity extends AppCompatActivity {
                         enemyManager.getEnemyViewList().remove(enemyView);
 
                         score++;
+                        enemyManager.setScore(score);
                         tv_score.setText(score+"");
+                        level = getLevel();
+                        enemyManager.setLevel(level);
+                        tv_best_score.setText("Lvl " + level);
+
+                        enemyManager.stopEnemyShooting(enemyView.getShotRunnable());
                         generateExplosion(20,enemyView.getPosX() + enemyView.getWidthTotal()/2, enemyView.getPosY());
+                        if (enemyView.getEnemyType() >= EnemyView.BOSS_1){
+                            enemyManager.stopShooting();
+                            enemyManager.launchEnemyWave();
+                        }
                         break;
                     }
-
                 }
             }
         }
@@ -213,14 +314,32 @@ public class MainActivity extends AppCompatActivity {
         shootingRunnable = new Runnable() {
             @Override
             public void run() {
-                generateShot();
+
+                switch (vehicleView.getShotType()){
+                    case VehicleView.NORMAL_SHOT :
+                        generateShot(0);
+                        break;
+                    case VehicleView.TRIPLE_SHOT :
+                        generateShot(0);
+                        generateShot(-1);
+                        generateShot(1);
+                        break;
+                    case VehicleView.GATLING_SHOT :
+                        break;
+                }
+
                 shootingHandler.postDelayed(this, vehicleView.getTIME_BETWEEN_SHOT());
             }
         };
         shootingHandler.postDelayed(shootingRunnable,100);
     }
 
-    private void generateShot(){
+    /**
+     *
+     * @param typeShot : 0 --> CENTER / -1 --> LEFT / 1 --> RIGHT
+     */
+
+    private void generateShot(int typeShot){
         final int shot_width = vehicleView.getHeightTotal() / 10;
         int shot_height = vehicleView.getHeightTotal() / 7;
 
@@ -229,11 +348,18 @@ public class MainActivity extends AppCompatActivity {
         rl.setLayoutParams(layoutParams);
         rl.setBackgroundColor(Color.CYAN);
         mainView.addView(rl,0);
+        rl.bringToFront();
 
         final int posXVehicle = vehicleView.getPosX();
         int posYVehicle = vehicleView.getTop_()-shot_height;
 
-        ObjectAnimator translateXAnimation = ObjectAnimator.ofFloat(rl,"translationX" ,posXVehicle-shot_width/2, posXVehicle-shot_width/2);
+        ObjectAnimator translateXAnimation;
+        switch (typeShot){
+            case 0 : translateXAnimation = ObjectAnimator.ofFloat(rl,"translationX" ,posXVehicle-shot_width/2, posXVehicle-shot_width/2);break;
+            case -1 : translateXAnimation = ObjectAnimator.ofFloat(rl,"translationX" ,posXVehicle-shot_width/2, posXVehicle-5*shot_width -shot_width/2);break;
+            case 1 : translateXAnimation = ObjectAnimator.ofFloat(rl,"translationX" ,posXVehicle-shot_width/2, posXVehicle+5*shot_width -shot_width/2);break;
+            default: translateXAnimation = ObjectAnimator.ofFloat(rl,"translationX" ,posXVehicle-shot_width/2, posXVehicle-shot_width/2);break;
+        }
         ObjectAnimator translateYAnimation = ObjectAnimator.ofFloat(rl, "translationY", posYVehicle , -10);
 
         final AnimatorSet set = new AnimatorSet();
@@ -269,7 +395,10 @@ public class MainActivity extends AppCompatActivity {
         tv_best_score.setText("Best : " + sharedPreferencesManager.getBestScore()+"");
         tv_best_score.setVisibility(View.VISIBLE);
         score = 0;
+        level = 1;
         btn_play.setVisibility(View.VISIBLE);
+        backgroundMedia.pause();
+        backgroundAnimator.pause();
     }
 
     private void generateExplosion(int nbPoint, int x, int y){
@@ -287,6 +416,7 @@ public class MainActivity extends AppCompatActivity {
             explode.setBackgroundColor(Color.WHITE);
 
             mainView.addView(explode,0);
+            explode.bringToFront();
             ObjectAnimator translateXAnimation = ObjectAnimator.ofFloat(explode,"translationX" ,x, x_);
             ObjectAnimator translateYAnimation = ObjectAnimator.ofFloat(explode, "translationY", y , y_);
             final AnimatorSet set = new AnimatorSet();
@@ -316,6 +446,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private int getLevel(){
+        if (score<51) return 1;
+        else return Double.valueOf((Math.log((score-1)/50) / Math.log(2)) + 2).intValue();
     }
 
     public static int dpToPx(int dp)

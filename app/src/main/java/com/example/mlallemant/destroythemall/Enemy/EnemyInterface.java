@@ -20,4 +20,5 @@ public interface EnemyInterface {
     int getLifePoint();
     void setLifePoint(int lifePoint);
     void setColorForImpactEffect(int color);
+    int getRateOfFire();
 }

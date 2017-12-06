@@ -41,10 +41,10 @@ public class BasicEnemy implements EnemyInterface {
     private int bloc_width;
     private int bloc_height;
 
-
     //UTILS
     private int lifePoint = 1;
     private int timeToFall = 5500;
+    private int rateOfFire = 5000;
 
 
     public BasicEnemy(Context context, int width, int height) {
@@ -75,12 +75,7 @@ public class BasicEnemy implements EnemyInterface {
         bloc_life_point = new ArrayList<>();
         for (int i = 0; i < lifePoint; i++){
             Rect bloc_tmp = new Rect(bloc.left + i * bloc.width()/lifePoint, bloc.top - 18, bloc.left + (i+1) * bloc.width()/lifePoint, bloc.top - 13);
-
-            Log.e("draw", "left : "+ (bloc.left + i * bloc.width()/lifePoint));
-            Log.e("draw", "top : " + (bloc.top - dpToPx(15)));
-            Log.e("draw", "right : "+ (bloc.left + (i+1) * bloc.width()/lifePoint));
-            Log.e("draw", "bottom : "+ (bloc.top - dpToPx(10)));
-            bloc_life_point.add(bloc_tmp);
+             bloc_life_point.add(bloc_tmp);
         }
     }
 
@@ -93,13 +88,8 @@ public class BasicEnemy implements EnemyInterface {
         for (int i = 0; i < lifePoint; i++){
             canvas.drawRect(bloc_life_point.get(i), paintLifePoint);
         }
-
     }
 
-    public static int dpToPx(int dp)
-    {
-        return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
-    }
 
     public int getHeight(){
         return bloc_height;
@@ -139,6 +129,10 @@ public class BasicEnemy implements EnemyInterface {
 
     public void setColorForImpactEffect(int color){
         paint.setColor(color);
+    }
+
+    public int getRateOfFire(){
+        return rateOfFire;
     }
 
     private Path newTriangle(Point a, Point b, Point c){
