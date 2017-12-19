@@ -207,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
                 bonusManager = new BonusManager(mainView);
+                //bonusManager.addBonusToView();
 
             }
         });
@@ -272,8 +273,6 @@ public class MainActivity extends AppCompatActivity {
                 int xMaxE = enemyView.getPosX() + enemyView.getWidthTotal() ;
                 int yImpact = enemyView.getPosY() + enemyView.getHeightTotal() / 2;
 
-                Log.e(TAG, "bottom : " + enemyView.getPosY());
-
                 if (xMinS <= xMaxE && xMaxS >= xMinE && shotPosY < yImpact) {
                     set.cancel();
                     shotView.clearAnimation();
@@ -306,7 +305,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void stopShooting(){
-        shootingHandler.removeCallbacks(shootingRunnable);
+        if (shootingHandler != null)
+            shootingHandler.removeCallbacks(shootingRunnable);
     }
 
     private void launchShooting(){

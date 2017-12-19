@@ -2,6 +2,7 @@ package com.example.mlallemant.destroythemall.Bonus;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.util.AttributeSet;
 import android.view.View;
 
 import com.example.mlallemant.destroythemall.Bonus.Draw.SpeedMinusBonus;
@@ -51,6 +52,10 @@ public class BonusView extends View {
                 break;
             case WEAPON_GATLING_SHOT : break;
         }
+    }
+
+    public BonusView(Context context, AttributeSet attributeSet){
+        super(context, attributeSet);
     }
 
     @Override

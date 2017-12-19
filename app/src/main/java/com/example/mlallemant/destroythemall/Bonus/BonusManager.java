@@ -3,13 +3,22 @@ package com.example.mlallemant.destroythemall.Bonus;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.graphics.Color;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
+import com.example.mlallemant.destroythemall.Bonus.Utils.BonusAdapter;
 import com.example.mlallemant.destroythemall.UI.MainView;
 import com.example.mlallemant.destroythemall.Vehicle.VehicleView;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -120,7 +129,7 @@ public class BonusManager {
 
     private void generateBonusScenario(){
 
-       int rand1 = getRandomIntBetween(0, 100);
+        int rand1 = getRandomIntBetween(0, 100);
         int rand2 = getRandomIntBetween(0,2);
         if (rand1 > 70 ) {
             if (rand2 == 0 && !speedPlusBonusToggle) generateBonus(BonusView.VEHICLE_SPEED_PLUS);
@@ -159,6 +168,29 @@ public class BonusManager {
                 break;
             case BonusView.WEAPON_GATLING_SHOT : break;
         }
+    }
+
+    public void addBonusToView(){
+        ListView listView = new ListView(mainView.getContext());
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(100, ViewGroup.LayoutParams.MATCH_PARENT);
+        params.topMargin = mainView.getHeight()/2;
+        params.bottomMargin = mainView.getVehicleView().getHeightTotal();
+        params.addRule(RelativeLayout.ALIGN_PARENT_START);
+        listView.setLayoutParams(params);
+
+
+        ArrayList<BonusView> bonusViewList = new ArrayList<>();
+
+        BonusView bonusView = new BonusView(listView.getContext(), mainView.getWidth(), mainView.getHeight(), BonusView.WEAPON_SHOT_SPEED_MINUS);
+
+        bonusViewList.add(bonusView);
+
+        BonusAdapter adapter = new BonusAdapter(bonusViewList, listView.getContext());
+        listView.setAdapter(adapter);
+
+        mainView.addView(listView);
+
+
 
     }
 
